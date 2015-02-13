@@ -109,10 +109,11 @@ function generateTestCases()
 					var args = Object.keys(params).map( function(k) {return params[k]; }).join(",");
 					if( pathExists || fileWithContent )
 					{
-						content += generateMockFsTestCases(pathExists,fileWithContent,fileNotExists,funcName, args);
+						content += generateMockFsTestCases(pathExists,fileWithContent,!fileNotExists,funcName, args);
 						// Bonus...generate constraint variations test cases....
-						content += generateMockFsTestCases(!pathExists,!fileWithContent,fileNotExists,funcName, args);
-						content += generateMockFsTestCases(pathExists,!fileWithContent,fileNotExists,funcName, args);
+						content += generateMockFsTestCases(!pathExists,!fileWithContent,!fileNotExists,funcName, args);
+						content += generateMockFsTestCases(pathExists,!fileWithContent,!fileNotExists,funcName, args);
+						content += generateMockFsTestCases(!pathExists,fileWithContent,!fileNotExists,funcName, args);
 						content += generateMockFsTestCases(!pathExists,fileWithContent,fileNotExists,funcName, args);
 					}
 					else
@@ -146,28 +147,26 @@ function generateMockFsTestCases (pathExists,fileWithContent,NoFile,funcName,arg
 	// Insert mock data based on constraints.
 	var mergedFS = {};
 
+				if( pathExists )
+				{
+						for (var attrname in mockFileLibrary.pathExists) { mergedFS[attrname] = mockFileLibrary.pathExists[attrname]; }
 
-	if( pathExists )
-	{
-		for (var attrname in mockFileLibrary.pathExists) { mergedFS[attrname] = mockFileLibrary.pathExists[attrname]; }
-	}
+						if(NoFile)
+						{
+							for (var attrname in mockFileLibrary.NoFile) { mergedFS[attrname] = mockFileLibrary.NoFile[attrname]; }
+						}
 
-	if(pathExists && NoFile)
-	{
-		for (var attrname in mockFileLibrary.pathExists) { mergedFS[attrname] = mockFileLibrary.pathExists[attrname]; }
-		for (var attrname in mockFileLibrary.NoFile) { mergedFS[attrname] = mockFileLibrary.NoFile[attrname]; }
-	}
+						if(!NoFile && !fileWithContent)
+						{
+							for (var attrname in mockFileLibrary.fileWithOutContent) { mergedFS[attrname] = mockFileLibrary.fileWithOutContent[attrname]; }
+						}
+				}
 
-	if( fileWithContent )
-	{
-		for (var attrname in mockFileLibrary.fileWithContent) { mergedFS[attrname] = mockFileLibrary.fileWithContent[attrname]; }
-	}
+				if( fileWithContent )
+				{
+					for (var attrname in mockFileLibrary.fileWithContent) { mergedFS[attrname] = mockFileLibrary.fileWithContent[attrname]; }
+				}
 
-	if(pathExists && !fileWithContent)
-	{
-		for (var attrname in mockFileLibrary.fileWithOutContent) { mergedFS[attrname] = mockFileLibrary.fileWithOutContent[attrname]; }
-
-	}
 
 
 	testCase +=
