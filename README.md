@@ -1,4 +1,4 @@
-# Dev-Ops CSC 791 Homework 2 Submission
+# Dev-Ops CSC-791 Homework 2 Submission
 
 ## Student Name: Saurabh Joshi
 ## Unity ID    : sjoshi6
