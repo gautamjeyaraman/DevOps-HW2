@@ -75,7 +75,6 @@ function generateTestCases()
 		for (var i =0; i < functionConstraints[funcName].params.length; i++ )
 		{
 			var paramName = functionConstraints[funcName].params[i];
-			//params[paramName] = '\'' + faker.phone.phoneNumber()+'\'';
 			params[paramName] = '\'\'';
 		}
 
@@ -87,6 +86,7 @@ function generateTestCases()
 		var fileWithContent = _.some(constraints, {mocking: 'fileWithContent' });
 		var pathExists      = _.some(constraints, {mocking: 'fileExists' });
 		var fileNotExists   = _.some(constraints, {mocking: 'Nofile'});
+		var Phone_Input		 	= _.contains(functionConstraints[funcName].params, "phoneNumber");
 
 		for( var c = 0; c < constraints.length; c++ )
 		{
@@ -115,6 +115,17 @@ function generateTestCases()
 						content += generateMockFsTestCases(pathExists,!fileWithContent,!fileNotExists,funcName, args);
 						content += generateMockFsTestCases(!pathExists,fileWithContent,!fileNotExists,funcName, args);
 						content += generateMockFsTestCases(!pathExists,fileWithContent,fileNotExists,funcName, args);
+						content += generateMockFsTestCases(pathExists,fileWithContent,fileNotExists,funcName, args);
+						content += generateMockFsTestCases(pathExists,!fileWithContent,fileNotExists,funcName, args);
+					}
+					else if(Phone_Input)
+					{
+						var Phone_Number ='212-212-2112'
+						var Phone_Format ='(NNN) NNN-NNNN'
+						var Options = '{"normalize": true}'
+
+						content+= generatePhoneTestCases(Phone_Number,Phone_Format,Options);
+
 					}
 					else
 					{
@@ -126,7 +137,8 @@ function generateTestCases()
 	}
 
 	//Number case
-	//content += "subject.{0}({1});\n".format('blackListNumber', "'2121111111'");
+	content += "subject.{0}({1});\n".format('blackListNumber', "'2121111111'");
+
 	//content += "subject.{0}({1});\n".format('format', "'2-12222','(NNN) NNN-NNNN','False'");
 	//content += "subject.{0}({1});\n".format('format', "'2122212222','(NNN) NNN-NNNN','True'");
 	//content += "subject.{0}({1});\n".format('format', "'','False','False'");
@@ -141,33 +153,40 @@ function generateTestCases()
 
 }
 
+function generatePhoneTestCases(Phone_Number,Phone_Format,Options)
+{
+
+		args+=Phone_Number+','+Phone_Format+
+	 	var testCase = "";
+		testCase += "\tsubject.{0}({1});\n".format(funcName, args );
+		return testCase;
+}
+
+
+
 function generateMockFsTestCases (pathExists,fileWithContent,NoFile,funcName,args)
 {
 	var testCase = "";
 	// Insert mock data based on constraints.
 	var mergedFS = {};
 
-				if( pathExists )
+				if( pathExists && NoFile && !fileWithContent)
 				{
 						for (var attrname in mockFileLibrary.pathExists) { mergedFS[attrname] = mockFileLibrary.pathExists[attrname]; }
-
-						if(NoFile)
-						{
-							for (var attrname in mockFileLibrary.NoFile) { mergedFS[attrname] = mockFileLibrary.NoFile[attrname]; }
-						}
-
-						if(!NoFile && !fileWithContent)
-						{
-							for (var attrname in mockFileLibrary.fileWithOutContent) { mergedFS[attrname] = mockFileLibrary.fileWithOutContent[attrname]; }
-						}
+						for (var attrname in mockFileLibrary.NoFile) { mergedFS[attrname] = mockFileLibrary.NoFile[attrname]; }
 				}
 
-				if( fileWithContent )
+				if(pathExists && !NoFile && !fileWithContent)
 				{
+							for (var attrname in mockFileLibrary.pathExists) { mergedFS[attrname] = mockFileLibrary.pathExists[attrname]; }
+							for (var attrname in mockFileLibrary.fileWithOutContent) { mergedFS[attrname] = mockFileLibrary.fileWithOutContent[attrname]; }
+				}
+
+				if( pathExists && fileWithContent && !NoFile)
+				{
+					for (var attrname in mockFileLibrary.pathExists) { mergedFS[attrname] = mockFileLibrary.pathExists[attrname]; }
 					for (var attrname in mockFileLibrary.fileWithContent) { mergedFS[attrname] = mockFileLibrary.fileWithContent[attrname]; }
 				}
-
-
 
 	testCase +=
 	"mock(" +
@@ -291,6 +310,7 @@ function constraints(filePath)
 						}
 					}
 				}
+
 
 				if( child.type == "CallExpression" &&
 					child.callee.property &&
