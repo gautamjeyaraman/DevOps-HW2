@@ -3,8 +3,8 @@
 ## Student Name: Saurabh Joshi
 ## Unity ID    : sjoshi6
 
-### 1. main.js execution
-![ScreenShot](MainExec.png)
-### 2. Coverage Report
+### 1. Coverage Report
 ![ScreenShot](Coverage.png)
+### 2. Main.js execution
+![ScreenShot](MainExec.png)
 ### 3. Link to Detailed Coverage Report
