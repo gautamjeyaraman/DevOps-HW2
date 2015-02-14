@@ -66,7 +66,7 @@ var mockFileLibrary =
 function generateTestCases()
 {
 
-	var content = "var subject = require('./subject.js')\nvar mock = require('mock-fs');var faker = require('faker');\n";
+	var content = "var subject = require('./subject.js')\nvar mock = require('mock-fs');\nvar faker = require('faker');\n";
 	for ( var funcName in functionConstraints )
 	{
 		var params = {};
@@ -120,11 +120,23 @@ function generateTestCases()
 					}
 					else if(Phone_Input)
 					{
-						var Phone_Number ='212-212-2112'
-						var Phone_Format ='(NNN) NNN-NNNN'
-						var Options = '{"normalize": true}'
+						if(Object.keys(params).length >1)
+						{
+							var Phone_Number ="1122122112";
+							var Phone_Format ="(NNN) NNN-NNNN";
+							var Options = "";
+							content+= generatePhoneTestCases(Phone_Number,Phone_Format,Options,funcName);
+							var Options = '{"normalize": true}';
+							content+= generatePhoneTestCases(Phone_Number,Phone_Format,Options,funcName);
+							var Options = '';
 
-						content+= generatePhoneTestCases(Phone_Number,Phone_Format,Options);
+							content+= generatePhoneTestCases(faker.phone.phoneNumber(),faker.phone.phoneNumberFormat(),Options,funcName);
+
+						}
+						else
+						{
+							content+= "subject.{0}({1});\n".format(funcName, "'"+faker.phone.phoneNumber()+"'");
+						}
 
 					}
 					else
@@ -153,16 +165,18 @@ function generateTestCases()
 
 }
 
-function generatePhoneTestCases(Phone_Number,Phone_Format,Options)
+function generatePhoneTestCases(Phone_Number,Phone_Format,Options,funcName)
 {
+		var args ='';
+		if(Options == '')
+			args="'"+Phone_Number+"','"+Phone_Format+"','"+Options+"'";
+		else
+			args="'"+Phone_Number+"','"+Phone_Format+"',"+Options;
 
-		args+=Phone_Number+','+Phone_Format+
-	 	var testCase = "";
-		testCase += "\tsubject.{0}({1});\n".format(funcName, args );
+	 	var testCase = '';
+		testCase += "subject.{0}({1});\n".format(funcName, args );
 		return testCase;
 }
-
-
 
 function generateMockFsTestCases (pathExists,fileWithContent,NoFile,funcName,args)
 {
